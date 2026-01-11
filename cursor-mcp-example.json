@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "ambari": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "AMBARI_BASE_URL=https://10.42.35.96:8080/api/v1",
+        "-e", "AMBARI_USERNAME=admin",
+        "-e", "AMBARI_PASSWORD=admin",
+        "-e", "INSECURE_SSL=1",
+        "ambari-mcp-server"
+      ]
+    }
+  }
+}
