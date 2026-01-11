@@ -4,11 +4,11 @@
       "command": "docker",
       "args": [
         "run", "-i", "--rm",
-        "-e", "AMBARI_BASE_URL=https://10.42.35.96:8080/api/v1",
+        "-e", "AMBARI_BASE_URL=https://your-ambari-server:8080/api/v1",
         "-e", "AMBARI_USERNAME=admin",
-        "-e", "AMBARI_PASSWORD=admin",
+        "-e", "AMBARI_PASSWORD=your-password",
         "-e", "INSECURE_SSL=1",
-        "ambari-mcp-server"
+        "bsprmkumar/ambari-mcp-server:latest"
       ]
     }
   }

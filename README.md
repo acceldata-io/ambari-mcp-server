@@ -109,7 +109,17 @@ npm start
 
 You can run the Ambari MCP Server as a Docker container, which simplifies deployment and avoids local Node.js setup.
 
-### Building the Docker Image
+### Pre-built Image (Recommended)
+
+Pull the pre-built image from Docker Hub:
+
+```bash
+docker pull bsprmkumar/ambari-mcp-server:latest
+```
+
+### Building the Docker Image (Optional)
+
+If you want to build locally:
 
 ```bash
 # Build the image
@@ -194,7 +204,7 @@ Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/
         "-e", "AMBARI_USERNAME=admin",
         "-e", "AMBARI_PASSWORD=your-password",
         "-e", "INSECURE_SSL=1",
-        "ambari-mcp-server"
+        "bsprmkumar/ambari-mcp-server:latest"
       ]
     }
   }
@@ -216,7 +226,7 @@ Add to your Cursor MCP configuration (`.cursor/mcp.json`):
         "-e", "AMBARI_USERNAME=admin",
         "-e", "AMBARI_PASSWORD=your-password",
         "-e", "INSECURE_SSL=1",
-        "ambari-mcp-server"
+        "bsprmkumar/ambari-mcp-server:latest"
       ]
     }
   }
