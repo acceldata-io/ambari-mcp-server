@@ -1,14 +1,10 @@
 {
   "mcpServers": {
     "ambari": {
-      "command": "docker",
+      "command": "sh",
       "args": [
-        "run", "-i", "--rm",
-        "-e", "AMBARI_BASE_URL=https://your-ambari-server:8080/api/v1",
-        "-e", "AMBARI_USERNAME=admin",
-        "-e", "AMBARI_PASSWORD=your-password",
-        "-e", "INSECURE_SSL=1",
-        "bsprmkumar/ambari-mcp-server:latest"
+        "-c",
+        "set -a; source ~/.ambari-mcp.env; set +a; docker rm -f ambari-mcp-server >/dev/null 2>&1; docker run -i --rm --name ambari-mcp-server --env-file ~/.ambari-mcp.env ${SSH_LOCAL_KEY_PATH:+-v \"$SSH_LOCAL_KEY_PATH\":/app/ssh-keys/id_rsa:ro} ${K8S_LOCAL_KUBECONFIG:+-v \"$K8S_LOCAL_KUBECONFIG\":/app/.kube/kubeconfig:ro} bsprmkumar/ambari-mcp-server:latest"
       ]
     }
   }

@@ -46,6 +46,19 @@ LABEL org.opencontainers.image.description="Model Context Protocol server for Ap
 LABEL org.opencontainers.image.version="1.0.0"
 LABEL org.opencontainers.image.source="https://github.com/odp-acceldata-io/ambari-mcp-server"
 
+# Install kubectl for Kubernetes support (detect architecture)
+RUN apk add --no-cache curl && \
+    ARCH=$(uname -m) && \
+    case $ARCH in \
+      x86_64) KUBECTL_ARCH="amd64" ;; \
+      aarch64) KUBECTL_ARCH="arm64" ;; \
+      *) KUBECTL_ARCH="amd64" ;; \
+    esac && \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${KUBECTL_ARCH}/kubectl" && \
+    chmod +x kubectl && \
+    mv kubectl /usr/local/bin/ && \
+    apk del curl
+
 # Create non-root user for security
 RUN addgroup -g 1001 -S mcpuser && \
     adduser -u 1001 -S mcpuser -G mcpuser
@@ -58,8 +71,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
 
-# Create directory for SSH keys (optional mounting)
-RUN mkdir -p /app/ssh-keys && chown mcpuser:mcpuser /app/ssh-keys
+# Create directories for SSH keys and kubeconfig (optional mounting)
+RUN mkdir -p /app/ssh-keys /app/.kube && chown -R mcpuser:mcpuser /app/ssh-keys /app/.kube
 
 # Switch to non-root user
 USER mcpuser
@@ -88,6 +101,13 @@ ENV SSH_PRIVATE_KEY_PATH=""
 ENV SSH_USERNAME="root"
 ENV SSH_PORT="22"
 ENV SSH_TIMEOUT="10000"
+
+# Kubernetes Configuration (optional - for K8s-based Ambari clusters)
+ENV K8S_KUBECONFIG_PATH=""
+ENV K8S_NAMESPACE="default"
+ENV K8S_POD_LABEL_SELECTOR=""
+ENV K8S_CONTAINER_NAME=""
+ENV K8S_TIMEOUT="30000"
 
 # Node.js Configuration
 ENV NODE_ENV="production"

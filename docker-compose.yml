@@ -40,16 +40,25 @@ services:
       - DEBUG=${DEBUG:-0}
       - ENV_DEBUG=${ENV_DEBUG:-0}
       
-      # SSH Configuration (optional)
+      # SSH Configuration (optional - for VM-based clusters)
       - SSH_PRIVATE_KEY_PATH=${SSH_PRIVATE_KEY_PATH:-}
       - SSH_USERNAME=${SSH_USERNAME:-root}
       - SSH_PORT=${SSH_PORT:-22}
       - SSH_TIMEOUT=${SSH_TIMEOUT:-10000}
+      
+      # Kubernetes Configuration (optional - for K8s-based clusters)
+      - K8S_KUBECONFIG_PATH=${K8S_KUBECONFIG_PATH:-/app/.kube/config}
+      - K8S_NAMESPACE=${K8S_NAMESPACE:-default}
+      - K8S_POD_LABEL_SELECTOR=${K8S_POD_LABEL_SELECTOR:-}
+      - K8S_CONTAINER_NAME=${K8S_CONTAINER_NAME:-}
+      - K8S_TIMEOUT=${K8S_TIMEOUT:-30000}
     
-    # Mount SSH keys if needed (uncomment and adjust path)
+    # Mount SSH keys or kubeconfig as needed (uncomment and adjust paths)
     # volumes:
+    #   # For SSH-based clusters:
     #   - ~/.ssh/id_rsa:/app/ssh-keys/id_rsa:ro
-    #   - /path/to/your/key.pem:/app/ssh-keys/key.pem:ro
+    #   # For Kubernetes-based clusters:
+    #   - ~/.kube/config:/app/.kube/config:ro
     
     # Network settings - needed to reach Ambari server
     # Use 'host' network mode if Ambari is on localhost

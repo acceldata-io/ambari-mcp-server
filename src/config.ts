@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import https from 'https';
 import { fileURLToPath } from 'url';
-import type { AmbariConfig, SshConfig } from './types.js';
+import type { AmbariConfig, SshConfig, K8sConfig } from './types.js';
 
 // Emulate __dirname in ESM context
 const __filename = fileURLToPath(import.meta.url);
@@ -151,6 +151,29 @@ export function getSshPrivateKeyPath(): string | undefined {
 }
 
 /**
+ * Get Kubernetes configuration for connecting to cluster pods
+ */
+export function getK8sConfig(): K8sConfig {
+  const kubeconfigPath = process.env['K8S_KUBECONFIG_PATH'] || '';
+  const namespace = process.env['K8S_NAMESPACE'] || 'default';
+  const podLabelSelector = process.env['K8S_POD_LABEL_SELECTOR'] || '';
+  const containerName = process.env['K8S_CONTAINER_NAME'] || '';
+  const timeout = parseInt(process.env['K8S_TIMEOUT'] || '30000', 10);
+  
+  // K8s is enabled if a pod label selector is configured
+  const enabled = Boolean(podLabelSelector);
+  
+  return {
+    enabled,
+    kubeconfigPath,
+    namespace,
+    podLabelSelector,
+    containerName,
+    timeout,
+  };
+}
+
+/**
  * Check if debug mode is enabled
  */
 export function isDebugEnabled(): boolean {
@@ -163,6 +186,7 @@ export function isDebugEnabled(): boolean {
 export function summarizeEnv(): void {
   const config = getAmbariConfig();
   const sshConfig = getSshConfig();
+  const k8sConfig = getK8sConfig();
   const maskedPwd = config.password.replace(/./g, '*');
   
   console.error('[env] Summary:', JSON.stringify({
@@ -174,6 +198,9 @@ export function summarizeEnv(): void {
     TIMEOUT_MS: config.timeoutMs,
     SSH_ENABLED: sshConfig.enabled,
     SSH_USERNAME: sshConfig.username,
+    K8S_ENABLED: k8sConfig.enabled,
+    K8S_NAMESPACE: k8sConfig.namespace,
+    K8S_POD_LABEL_SELECTOR: k8sConfig.podLabelSelector || '(not configured)',
   }, null, 2));
 }
 

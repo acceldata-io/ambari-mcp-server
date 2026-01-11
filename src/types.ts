@@ -39,6 +39,45 @@ export interface SshCommandResult {
 }
 
 // ============================================================================
+// Kubernetes Configuration Types
+// ============================================================================
+
+export interface K8sConfig {
+  /** Whether K8s mode is enabled */
+  enabled: boolean;
+  /** Path to kubeconfig file (optional, uses default if not set) */
+  kubeconfigPath: string;
+  /** Kubernetes namespace where Ambari pods are running */
+  namespace: string;
+  /** Label selector for Ambari agent pods (e.g., "app=ambari-agent") */
+  podLabelSelector: string;
+  /** Container name in the pod (optional, uses first container if not set) */
+  containerName: string;
+  /** Command timeout in ms */
+  timeout: number;
+}
+
+export interface K8sCommandResult {
+  pod: string;
+  success: boolean;
+  stdout: string;
+  stderr: string;
+  exitCode: number | null;
+  error?: string;
+}
+
+export interface K8sPodInfo {
+  name: string;
+  namespace: string;
+  nodeName: string;
+  status: string;
+  ready: boolean;
+  containers: string[];
+  hostIP: string;
+  podIP: string;
+}
+
+// ============================================================================
 // API Response Types
 // ============================================================================
 

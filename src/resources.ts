@@ -96,6 +96,13 @@ interface ParsedUri {
   hostName?: string;
 }
 
+/**
+ * Check if a value is a placeholder like {clusterName}, {serviceName}, etc.
+ */
+function isPlaceholder(value: string): boolean {
+  return /^\{[^}]+\}$/.test(value);
+}
+
 export function parseResourceUri(uri: string): ParsedUri {
   const match = uri.match(/^ambari:\/\/(.+)$/);
   if (!match?.[1]) {
@@ -116,7 +123,9 @@ export function parseResourceUri(uri: string): ParsedUri {
       throw new Error(`Invalid cluster resource URI: ${uri}`);
     }
 
-    const clusterName = clusterMatch[1];
+    // Ignore placeholder values like {clusterName} - will be auto-detected
+    const rawClusterName = clusterMatch[1];
+    const clusterName = isPlaceholder(rawClusterName) ? undefined : rawClusterName;
     const subPath = clusterMatch[2];
 
     if (!subPath) {
@@ -154,7 +163,8 @@ export function parseResourceUri(uri: string): ParsedUri {
     // Service-based resources
     const serviceMatch = subPath.match(/^service\/([^/]+)(?:\/(.+))?$/);
     if (serviceMatch?.[1]) {
-      const serviceName = serviceMatch[1];
+      const rawServiceName = serviceMatch[1];
+      const serviceName = isPlaceholder(rawServiceName) ? undefined : rawServiceName;
       const serviceSubPath = serviceMatch[2];
 
       if (!serviceSubPath) {
@@ -171,7 +181,9 @@ export function parseResourceUri(uri: string): ParsedUri {
   if (path.startsWith('host/')) {
     const hostMatch = path.match(/^host\/(.+)$/);
     if (hostMatch?.[1]) {
-      return { type: 'host', hostName: hostMatch[1] };
+      const rawHostName = hostMatch[1];
+      const hostName = isPlaceholder(rawHostName) ? undefined : rawHostName;
+      return { type: 'host', hostName };
     }
   }
 

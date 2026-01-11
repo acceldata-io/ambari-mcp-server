@@ -9,6 +9,7 @@ export { CONFIG_TOOLS, configToolExecutors } from './config-tools.js';
 export { USER_TOOLS, userToolExecutors } from './user-tools.js';
 export { REQUEST_TOOLS, requestToolExecutors } from './request-tools.js';
 export { SSH_TOOLS, sshToolExecutors } from './ssh-tools.js';
+export { K8S_TOOLS, k8sToolExecutors } from './k8s-tools.js';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 /**
  * All available MCP tools

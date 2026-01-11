@@ -19,7 +19,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import type { CallToolResult, ReadResourceResult, TextContent } from '@modelcontextprotocol/sdk/types.js';
 
-import { getAmbariConfig, getSshConfig } from './config.js';
+import { getAmbariConfig, getSshConfig, getK8sConfig } from './config.js';
 import { ALL_TOOLS, allToolExecutors } from './tools/index.js';
 import { AMBARI_RESOURCES, readResource } from './resources.js';
 
@@ -205,10 +205,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToo
 async function main(): Promise<void> {
   const config = getAmbariConfig();
   const sshConfig = getSshConfig();
+  const k8sConfig = getK8sConfig();
 
   const sslStatus = config.insecureSsl ? 'DISABLED (insecure)' : 'enabled';
   const sshStatus = sshConfig.enabled 
     ? `enabled (${sshConfig.username}@port ${sshConfig.port})`
+    : 'not configured';
+  const k8sStatus = k8sConfig.enabled
+    ? `enabled (${k8sConfig.namespace}/${k8sConfig.podLabelSelector})`
     : 'not configured';
   
   console.error('╔════════════════════════════════════════════════════════════╗');
@@ -220,6 +224,7 @@ async function main(): Promise<void> {
   console.error(`║ Timeout: ${(config.timeoutMs + 'ms').padEnd(50)}║`);
   console.error(`║ SSL Verify: ${sslStatus.padEnd(47)}║`);
   console.error(`║ SSH: ${sshStatus.padEnd(54)}║`);
+  console.error(`║ K8s: ${k8sStatus.padEnd(54)}║`);
   console.error('╠════════════════════════════════════════════════════════════╣');
   console.error(`║ Available Tools: ${String(ALL_TOOLS.length).padEnd(42)}║`);
   console.error(`║ Available Resources: ${String(AMBARI_RESOURCES.length).padEnd(38)}║`);

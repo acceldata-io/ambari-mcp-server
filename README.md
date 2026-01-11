@@ -58,6 +58,14 @@ A comprehensive Model Context Protocol (MCP) server for Apache Ambari, providing
 - List all Ambari users
 - Get detailed user information
 
+### Kubernetes Support
+- Native support for Ambari clusters running on Kubernetes
+- Execute commands in Ambari agent pods via `kubectl exec`
+- Restart Ambari agents in K8s pods
+- Check agent status across pods
+- Get pod logs
+- No SSH keys needed - uses kubeconfig for authentication
+
 ## Installation
 
 ### Prerequisites
@@ -107,137 +115,25 @@ npm start
 
 ## Docker Usage
 
-You can run the Ambari MCP Server as a Docker container, which simplifies deployment and avoids local Node.js setup.
+Run the Ambari MCP Server as a Docker container for simplified deployment.
 
-### Pre-built Image (Recommended)
+📖 **See [DOCKER-README.md](./DOCKER-README.md) for complete Docker deployment instructions**, including:
+- Quick start setup (3 steps)
+- Configuration for Kubernetes and VM-based clusters
+- Claude Desktop / Cursor integration
+- Troubleshooting guide
 
-Pull the pre-built image from Docker Hub:
+**Quick links:**
+- **Docker Hub:** [bsprmkumar/ambari-mcp-server](https://hub.docker.com/r/bsprmkumar/ambari-mcp-server)
+- **Template:** [ambari-mcp.env.template](./ambari-mcp.env.template)
 
-```bash
-docker pull bsprmkumar/ambari-mcp-server:latest
-```
+## MCP Configuration (Node.js - Alternative)
 
-### Building the Docker Image (Optional)
+If you prefer running with Node.js directly instead of Docker:
 
-If you want to build locally:
+### Claude Desktop
 
-```bash
-# Build the image
-docker build -t ambari-mcp-server .
-
-# Or use docker-compose
-docker-compose build
-```
-
-### Running with Environment Variables
-
-Pass environment variables directly to configure the server:
-
-```bash
-docker run -i --rm \
-  -e AMBARI_BASE_URL=https://your-ambari-server:8080/api/v1 \
-  -e AMBARI_USERNAME=admin \
-  -e AMBARI_PASSWORD=your-password \
-  -e AMBARI_CLUSTER_NAME=your-cluster \
-  -e INSECURE_SSL=1 \
-  ambari-mcp-server
-```
-
-### Running with an Environment File
-
-Create a `.env` file with your configuration and use `--env-file`:
-
-```bash
-# Copy and edit the example environment file
-cp env.example .env
-# Edit .env with your settings
-
-# Run with env file
-docker run -i --rm --env-file .env ambari-mcp-server
-```
-
-### Using with SSH (Optional)
-
-If you need SSH access to cluster nodes, mount your private key:
-
-```bash
-docker run -i --rm \
-  -e AMBARI_BASE_URL=https://your-ambari-server:8080/api/v1 \
-  -e AMBARI_USERNAME=admin \
-  -e AMBARI_PASSWORD=your-password \
-  -e SSH_PRIVATE_KEY_PATH=/app/ssh-keys/id_rsa \
-  -e SSH_USERNAME=root \
-  -v ~/.ssh/id_rsa:/app/ssh-keys/id_rsa:ro \
-  ambari-mcp-server
-```
-
-### Environment Variables Reference
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `AMBARI_BASE_URL` | Ambari server API URL | `http://localhost:8080/api/v1` |
-| `AMBARI_USERNAME` | Ambari username | `admin` |
-| `AMBARI_PASSWORD` | Ambari password | `admin` |
-| `AMBARI_CLUSTER_NAME` | Cluster name (auto-detect if empty) | `` |
-| `TIMEOUT_MS` | Request timeout in milliseconds | `30000` |
-| `INSECURE_SSL` | Skip SSL verification (1/true) | `0` |
-| `DEBUG` | Enable debug logging (1/true) | `0` |
-| `SSH_PRIVATE_KEY_PATH` | Path to SSH private key | `` |
-| `SSH_USERNAME` | SSH username | `root` |
-| `SSH_PORT` | SSH port | `22` |
-| `SSH_TIMEOUT` | SSH timeout in milliseconds | `10000` |
-
-## MCP Configuration
-
-### Using Docker with Claude Desktop
-
-Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
-
-```json
-{
-  "mcpServers": {
-    "ambari": {
-      "command": "docker",
-      "args": [
-        "run", "-i", "--rm",
-        "-e", "AMBARI_BASE_URL=https://your-ambari-server:8080/api/v1",
-        "-e", "AMBARI_USERNAME=admin",
-        "-e", "AMBARI_PASSWORD=your-password",
-        "-e", "INSECURE_SSL=1",
-        "bsprmkumar/ambari-mcp-server:latest"
-      ]
-    }
-  }
-}
-```
-
-### Using Docker with Cursor
-
-Add to your Cursor MCP configuration (`.cursor/mcp.json`):
-
-```json
-{
-  "mcpServers": {
-    "ambari": {
-      "command": "docker",
-      "args": [
-        "run", "-i", "--rm",
-        "-e", "AMBARI_BASE_URL=https://your-ambari-server:8080/api/v1",
-        "-e", "AMBARI_USERNAME=admin",
-        "-e", "AMBARI_PASSWORD=your-password",
-        "-e", "INSECURE_SSL=1",
-        "bsprmkumar/ambari-mcp-server:latest"
-      ]
-    }
-  }
-}
-```
-
-### Using Node.js Directly (Alternative)
-
-#### Claude Desktop
-
-Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
 
 ```json
 {
@@ -255,9 +151,9 @@ Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/
 }
 ```
 
-#### Cursor
+### Cursor
 
-Add to your Cursor MCP configuration:
+Add to `.cursor/mcp.json`:
 
 ```json
 {
@@ -356,6 +252,17 @@ Make sure your `.env` file is properly configured.
 |------|-------------|
 | `ambari_users_list` | List all Ambari users |
 | `ambari_users_get` | Get detailed user information |
+
+### Kubernetes Tools
+| Tool | Description |
+|------|-------------|
+| `ambari_k8s_status` | Check K8s configuration and kubectl availability |
+| `ambari_k8s_list_pods` | List all Ambari pods matching the label selector |
+| `ambari_k8s_restart_agent` | Restart Ambari agent in K8s pods |
+| `ambari_k8s_run_command` | Execute a shell command in Ambari pods |
+| `ambari_k8s_check_agent_status` | Check Ambari agent status in pods |
+| `ambari_k8s_restart_agent_and_wait` | Restart agents and wait for re-registration |
+| `ambari_k8s_get_pod_logs` | Get Ambari agent logs from a pod |
 
 ## Available Resources
 
