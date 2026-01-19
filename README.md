@@ -120,6 +120,7 @@ Run the Ambari MCP Server as a Docker container for simplified deployment.
 📖 **See [DOCKER-README.md](./DOCKER-README.md) for complete Docker deployment instructions**, including:
 - Quick start setup (3 steps)
 - Configuration for Kubernetes and VM-based clusters
+- **Multi-cluster setup** (connect to multiple Ambari environments)
 - Claude Desktop / Cursor integration
 - Troubleshooting guide
 

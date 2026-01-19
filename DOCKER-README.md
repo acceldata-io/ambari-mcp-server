@@ -241,6 +241,77 @@ docker run --rm --env-file ~/.ambari-mcp.env bsprmkumar/ambari-mcp-server:latest
 
 ---
 
+## Multi-Cluster Setup
+
+Connect to **multiple Ambari environments** from Claude by creating separate MCP servers.
+
+### Step 1: Create env files for each cluster
+
+```bash
+# Cluster 1: K8s-based cluster
+~/.ambari-mcp-k8s.env
+
+# Cluster 2: VM-based cluster  
+~/.ambari-mcp-vm.env
+
+# Cluster 3: Production cluster
+~/.ambari-mcp-prod.env
+```
+
+Copy the template for each:
+```bash
+cp ~/.ambari-mcp.env ~/.ambari-mcp-k8s.env
+cp ~/.ambari-mcp.env ~/.ambari-mcp-vm.env
+```
+
+Edit each file with the respective cluster settings.
+
+### Step 2: Update Claude Desktop config
+
+Add multiple MCP servers (each with unique name and container name):
+
+```json
+{
+  "mcpServers": {
+    "ambari-k8s": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "set -a; source ~/.ambari-mcp-k8s.env; set +a; docker rm -f ambari-mcp-k8s >/dev/null 2>&1; docker run -i --rm --name ambari-mcp-k8s --env-file ~/.ambari-mcp-k8s.env ${SSH_LOCAL_KEY_PATH:+-v \"$SSH_LOCAL_KEY_PATH\":/app/ssh-keys/id_rsa:ro} ${K8S_LOCAL_KUBECONFIG:+-v \"$K8S_LOCAL_KUBECONFIG\":/app/.kube/kubeconfig:ro} bsprmkumar/ambari-mcp-server:latest"
+      ]
+    },
+    "ambari-vm": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "set -a; source ~/.ambari-mcp-vm.env; set +a; docker rm -f ambari-mcp-vm >/dev/null 2>&1; docker run -i --rm --name ambari-mcp-vm --env-file ~/.ambari-mcp-vm.env ${SSH_LOCAL_KEY_PATH:+-v \"$SSH_LOCAL_KEY_PATH\":/app/ssh-keys/id_rsa:ro} ${K8S_LOCAL_KUBECONFIG:+-v \"$K8S_LOCAL_KUBECONFIG\":/app/.kube/kubeconfig:ro} bsprmkumar/ambari-mcp-server:latest"
+      ]
+    },
+    "ambari-prod": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "set -a; source ~/.ambari-mcp-prod.env; set +a; docker rm -f ambari-mcp-prod >/dev/null 2>&1; docker run -i --rm --name ambari-mcp-prod --env-file ~/.ambari-mcp-prod.env ${SSH_LOCAL_KEY_PATH:+-v \"$SSH_LOCAL_KEY_PATH\":/app/ssh-keys/id_rsa:ro} ${K8S_LOCAL_KUBECONFIG:+-v \"$K8S_LOCAL_KUBECONFIG\":/app/.kube/kubeconfig:ro} bsprmkumar/ambari-mcp-server:latest"
+      ]
+    }
+  }
+}
+```
+
+### Step 3: Use in Claude
+
+When talking to Claude, specify which cluster:
+
+- "Using **ambari-k8s**, list all services"
+- "On **ambari-vm**, restart the YARN service"
+- "Check alerts on **ambari-prod**"
+
+Claude will route your request to the correct Ambari environment.
+
+> **Tip:** Name your MCP servers meaningfully (e.g., `ambari-dev`, `ambari-staging`, `ambari-prod`) so it's clear which cluster you're targeting.
+
+---
+
 ## Docker Hub
 
 **Image:** `bsprmkumar/ambari-mcp-server:latest`

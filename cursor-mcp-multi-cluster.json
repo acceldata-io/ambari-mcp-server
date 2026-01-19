@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "ambari-k8s": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "set -a; source ~/.ambari-mcp-k8s.env; set +a; docker rm -f ambari-mcp-k8s >/dev/null 2>&1; docker run -i --rm --name ambari-mcp-k8s --env-file ~/.ambari-mcp-k8s.env ${SSH_LOCAL_KEY_PATH:+-v \"$SSH_LOCAL_KEY_PATH\":/app/ssh-keys/id_rsa:ro} ${K8S_LOCAL_KUBECONFIG:+-v \"$K8S_LOCAL_KUBECONFIG\":/app/.kube/kubeconfig:ro} bsprmkumar/ambari-mcp-server:latest"
+      ]
+    },
+    "ambari-vm": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "set -a; source ~/.ambari-mcp-vm.env; set +a; docker rm -f ambari-mcp-vm >/dev/null 2>&1; docker run -i --rm --name ambari-mcp-vm --env-file ~/.ambari-mcp-vm.env ${SSH_LOCAL_KEY_PATH:+-v \"$SSH_LOCAL_KEY_PATH\":/app/ssh-keys/id_rsa:ro} ${K8S_LOCAL_KUBECONFIG:+-v \"$K8S_LOCAL_KUBECONFIG\":/app/.kube/kubeconfig:ro} bsprmkumar/ambari-mcp-server:latest"
+      ]
+    },
+    "ambari-prod": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "set -a; source ~/.ambari-mcp-prod.env; set +a; docker rm -f ambari-mcp-prod >/dev/null 2>&1; docker run -i --rm --name ambari-mcp-prod --env-file ~/.ambari-mcp-prod.env ${SSH_LOCAL_KEY_PATH:+-v \"$SSH_LOCAL_KEY_PATH\":/app/ssh-keys/id_rsa:ro} ${K8S_LOCAL_KUBECONFIG:+-v \"$K8S_LOCAL_KUBECONFIG\":/app/.kube/kubeconfig:ro} bsprmkumar/ambari-mcp-server:latest"
+      ]
+    }
+  }
+}
